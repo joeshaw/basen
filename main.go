@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/FactomProject/basen"
 )
@@ -29,6 +30,9 @@ func main() {
 		decode func(string) ([]byte, error)
 	)
 
+	fromBase, fromAlpha, _ := strings.Cut(fromBase, ":")
+	toBase, toAlpha, _ := strings.Cut(toBase, ":")
+
 	switch fromBase {
 	case "base36", "b36", "36":
 		decode = base36Encoding.DecodeString
@@ -46,6 +50,14 @@ func main() {
 		decode = func(s string) ([]byte, error) {
 			return []byte(s), nil
 		}
+
+	case "custom":
+		enc := basen.NewEncoding(fromAlpha)
+		decode = enc.DecodeString
+
+	default:
+		fmt.Println("Unknown \"from\" base:", fromBase)
+		return
 	}
 
 	switch toBase {
@@ -65,6 +77,14 @@ func main() {
 		encode = func(b []byte) string {
 			return string(b)
 		}
+
+	case "custom":
+		enc := basen.NewEncoding(toAlpha)
+		encode = enc.EncodeToString
+
+	default:
+		fmt.Println("Unknown \"to\" base:", toBase)
+		return
 	}
 
 	decoded, err := decode(value)
