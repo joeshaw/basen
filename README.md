@@ -23,6 +23,7 @@ You can create custom bases as well by specifying an alphabet:
 - base36, b36, 36
 - base62, b62, 62
 - base64, b64, 64
+- base10, b10, 10, int
 - hex
 - raw
 - custom:<alphabet>

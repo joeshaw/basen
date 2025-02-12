@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"encoding/hex"
 	"fmt"
+	"math/big"
 	"os"
 	"strings"
 
@@ -18,6 +19,15 @@ var (
 func main() {
 	if len(os.Args) < 3 {
 		fmt.Printf("Usage: %s <from base> <to base> <value>\n", os.Args[0])
+		fmt.Println()
+		fmt.Println("Available bases:")
+		fmt.Println("  - base36, b36, 36")
+		fmt.Println("  - base62, b62, 62")
+		fmt.Println("  - base64, b64, 64")
+		fmt.Println("  - base10, b10, 10, int")
+		fmt.Println("  - hex")
+		fmt.Println("  - raw")
+		fmt.Println("  - custom:<alphabet>")
 		return
 	}
 
@@ -42,6 +52,15 @@ func main() {
 
 	case "base64", "b64", "64":
 		decode = base64.StdEncoding.DecodeString
+
+	case "base10", "b10", "10", "int":
+		decode = func(s string) ([]byte, error) {
+			var v big.Int
+			if _, ok := v.SetString(s, 10); !ok {
+				return nil, fmt.Errorf("invalid int value")
+			}
+			return v.Bytes(), nil
+		}
 
 	case "hex":
 		decode = hex.DecodeString
@@ -69,6 +88,13 @@ func main() {
 
 	case "base64", "b64", "64":
 		encode = base64.StdEncoding.EncodeToString
+
+	case "base10", "b10", "10", "int":
+		encode = func(b []byte) string {
+			var v big.Int
+			v.SetBytes(b)
+			return v.String()
+		}
 
 	case "hex":
 		encode = hex.EncodeToString
